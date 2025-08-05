@@ -1,0 +1,43 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment files
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# Jupyter and Colab outputs (if used)
+.ipynb_checkpoints/
+
+# Token and credentials
+credentials.json
+token.json
+
+# Model and vectorizer artifacts
+*.pkl
+
+# CSVs generated at runtime
+FetchedEmails.csv
+TrainingEmails.csv
+PredictionEmails.csv
+
+# GIFs or media
+*.gif
+*.mp4
+
+
