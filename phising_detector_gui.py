@@ -26,17 +26,9 @@ model_cache = None
 selected_training_path = None  # Will hold your uploaded CSV path
 
 def authenticate_gmail():
-    creds = None
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+    # Always prompt user to log in with their own Gmail
+    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+    creds = flow.run_local_server(port=0)
     return creds
 
 def decode_body(body_data):
@@ -46,6 +38,13 @@ def decode_body(body_data):
     decoded_bytes = base64.b64decode(body_data)
     soup = BeautifulSoup(decoded_bytes, "lxml")
     return soup.get_text()
+
+import re
+
+def clean_invisible_chars(text):
+    if isinstance(text, str):
+        return re.sub(r'[\u200B-\u200D\uFEFF]', '', text)
+    return text
 
 def fetch_emails(max_total=2000):
     creds = authenticate_gmail()
@@ -98,6 +97,7 @@ def fetch_emails(max_total=2000):
             break  # No more pages
 
     df = pd.DataFrame(email_data)
+    df = df.applymap(clean_invisible_chars)  # Clean invisible characters
     df.to_csv("FetchedEmails.csv", index=False)
     return df
 
@@ -265,6 +265,7 @@ def run_prediction_only():
 
 def _run_prediction_only():
     try:
+        fetch_emails()
         predict_emails()
     except Exception as e:
         root.after(0, lambda e=e: messagebox.showerror("Error", str(e)))
